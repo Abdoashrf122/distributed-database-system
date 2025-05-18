@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Distributed DB System</title>
+  <style>
+    body { font-family: Arial; margin: 20px; background: #f4f4f4; }
+    h1 { color: #333; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); max-width: 800px; margin: auto; }
+    textarea, input, select { width: 100%; padding: 10px; margin: 8px 0; }
+    button { padding: 10px 15px; margin-top: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #45a049; }
+    pre { background: #222; color: #0f0; padding: 10px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌐 Distributed DB System GUI</h1>
+    <label>Choose Action:</label>
+    <select id="action">
+      <option value="create_db">Create Database</option>
+      <option value="create_table">Create Table</option>
+      <option value="insert">Insert</option>
+      <option value="update">Update</option>
+      <option value="delete">Delete</option>
+      <option value="select">Select</option>
+      <option value="search">Search</option>
+    </select>
+
+    <label>Database Name:</label>
+    <input type="text" id="dbname" placeholder="e.g. mydb"/>
+
+    <label>Table Name:</label>
+    <input type="text" id="table" placeholder="e.g. users"/>
+
+    <label>Attributes (comma-separated, for create_table only):</label>
+    <input type="text" id="attrs" placeholder="e.g. id,name,age"/>
+
+    <label>Data (JSON format):</label>
+    <textarea id="data" rows="3" placeholder='e.g. {"id": "1", "name": "Ali"}'></textarea>
+
+    <label>Query (JSON format):</label>
+    <textarea id="query" rows="2" placeholder='e.g. {"key": "id", "value": "1"}'></textarea>
+
+    <button onclick="sendCommand()">▶️ Send to Master</button>
+
+    <h3>📤 Response:</h3>
+    <pre id="response">...</pre>
+  </div>
+
+  <script>
+    async function sendCommand() {
+      const cmd = {
+        action: document.getElementById("action").value,
+        dbname: document.getElementById("dbname").value,
+        table: document.getElementById("table").value,
+        data: JSON.parse(document.getElementById("data").value || "{}"),
+        query: JSON.parse(document.getElementById("query").value || "{}"),
+        attrs: document.getElementById("attrs").value.split(",").filter(Boolean)
+      };
+
+      const res = await fetch("http://localhost:5000/master", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cmd)
+      });
+
+      const text = await res.text();
+      document.getElementById("response").innerText = text;
+    }
+  </script>
+</body>
+</html>
